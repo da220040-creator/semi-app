@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ヒダゼミ 適合度チェック - Forest Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest-green: #8dc14b;
+            --forest-beige: #fdf8e1;
+            --forest-wood: #a67c52;
+            --forest-wood-light: #c19a6b;
+            --forest-text: #5d4037;
+            --forest-accent: #ff8a65;
+            --leaf-color: #76c043;
+        }
+
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            background-color: #d8efc4;
+            /* 芝生のようなドット背景 */
+            background-image: radial-gradient(#c5e5a5 15%, transparent 16%);
+            background-size: 30px 30px;
+            color: var(--forest-text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 木目調のカード外枠 */
+        .wood-frame {
+            max-width: 650px;
+            width: 100%;
+            background-color: var(--forest-wood);
+            padding: 12px;
+            border-radius: 40px;
+            box-shadow: 0 15px 0px #865f3d, 0 20px 40px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* メインコンテンツエリア */
+        .container {
+            background-color: var(--forest-beige);
+            border-radius: 30px;
+            padding: 40px 30px;
+            border: 4px solid #fff;
+            position: relative;
+            text-align: center;
+        }
+
+        /* 葉っぱアイコン (CSSで描画) */
+        .leaf-icon {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: var(--leaf-color);
+            border-radius: 50% 10% 50% 10%;
+            position: relative;
+            margin: 0 10px;
+            vertical-align: middle;
+            transform: rotate(-15deg);
+        }
+        .leaf-icon::after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: rgba(0,0,0,0.1);
+            top: 50%;
+            left: 0;
+            transform: rotate(45deg);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--forest-wood);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            color: #8a735a;
+            margin-bottom: 30px;
+        }
+
+        .message-balloon {
+            background-color: #fff;
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 30px;
+            position: relative;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.05);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            width: 250px;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 40px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-yes {
+            background-color: var(--forest-green);
+            color: white;
+            box-shadow: 0 6px 0 #6e9a38;
+        }
+        .btn-yes:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #6e9a38;
+        }
+        .btn-yes:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 #6e9a38;
+        }
+
+        .btn-no {
+            background-color: #cfd8dc;
+            color: #546e7a;
+            box-shadow: 0 6px 0 #b0bec5;
+        }
+        .btn-no:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #b0bec5;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 25px;
+        }
+
+        .pixel-progress {
+            height: 14px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #fff;
+        }
+
+        .pixel-fill {
+            height: 100%;
+            background-color: var(--forest-green);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        /* 結果画面のジャジャーン演出 */
+        .result-screen {
+            display: none;
+        }
+
+        .jajaan-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--forest-accent);
+            text-shadow: 3px 3px 0 #fff;
+            margin-bottom: 10px;
+            display: block;
+            animation: bounce 0.6s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        .score-box {
+            background: #fff;
+            border: 5px solid var(--forest-green);
+            display: inline-block;
+            padding: 20px 40px;
+            border-radius: 50px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .score-val {
+            font-size: 4rem;
+            color: var(--forest-green);
+            font-weight: 700;
+        }
+
+        /* 紙吹雪用 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .character-img {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="wood-frame">
+    <div class="container">
+        <!-- スタート -->
+        <div id="start-screen">
+            <div class="character-img">🏕️</div>
+            <h1><span class="leaf-icon"></span>ヒダゼミの森<span class="leaf-icon"></span></h1>
+            <div class="subtitle">〜 ゼミえらび　適合度しんだん 〜</div>
+            <div class="message-balloon">
+                ヒダゼミへ　ようこそ！<br>
+                ここでは　キミと　ヒダゼミの　相性を<br>
+                16個のしつもんで　チェックするよ。<br><br>
+                のんびり　答えてみてね！
+            </div>
+            <button class="btn btn-yes" onclick="startQuiz()">はじめる！</button>
+        </div>
+
+        <!-- 診断中 -->
+        <div id="quiz-screen" style="display: none;">
+            <div class="progress-bar-container">
+                <div style="font-size: 0.8rem; margin-bottom: 5px; color: #8a735a;">しつもん <span id="q-num">1</span> / 16</div>
+                <div class="pixel-progress"><div id="progress-fill" class="pixel-fill"></div></div>
+            </div>
+            <div class="message-balloon">
+                <div class="question-text" id="question-text"></div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-yes" onclick="answer(true)">はい！</button>
+                <button class="btn btn-no" onclick="answer(false)">いいえ</button>
+            </div>
+        </div>
+
+        <!-- 結果 -->
+        <div id="result-screen" class="result-screen">
+            <span class="jajaan-text">ジャジャーン！</span>
+            <div class="score-box">
+                <div style="font-size: 1rem; color: #888;">キミの適合度は…</div>
+                <div class="score-val"><span id="score-display">0</span>%</div>
+            </div>
+            <h2 id="result-title" style="color: var(--forest-wood);"></h2>
+            <div class="message-balloon" id="result-message"></div>
+            <button class="btn btn-yes" onclick="location.reload()" style="width: auto; padding: 15px 40px;">もういちど　やる！</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        "特定の分野だけに固定せず、今自分が強い関心を持っていること以外も知ってみたい？",
+        "1つのことを専門的に掘り下げていくよりも、今は視野を広げたい？",
+        "教室での講義より、実際に地域に出て「雰囲気や空気」を感じることにワクワクする？",
+        "決まった正解を教わるより、自分で「感じる・考える」ことを大切にしたい？",
+        "就活の“ガクチカ”をゼミでつくりたい？",
+        "卒論では、テーマ設定から調査の進め方、分析、執筆まで、丁寧な指導が必要？",
+        "卒論では、インタビューやアンケートなど「自分なりの調査」に挑戦してみたい？",
+        "決められた合宿や飲み会よりも、必要に応じて柔軟に集まるスタイルの方が好き？",
+        "ゼミは普段の仲良しグループで固まるより、せっかくだから色んな人と関係を築きたい？",
+        "先生との関係は、かしこまりすぎず「オン・オフ」を切り替えてフランクに話したい？",
+        "自分の意見を否定される心配をせず、まずは安心して何でも相談できる関係が必要？",
+        "旅行に行きたくて授業を休む時、先生には素直に「旅行に行く」って話す？",
+        "「誠実にコツコツ頑張っている人が報われてほしい」という考え方に共感できる？",
+        "自分の将来のためになるなら、適当に「大丈夫」よりもきちんと「ダメ」って言ってほしい？",
+        "AIは安易に頼るのではなく、自分の成長のために「賢く使いこなす力」を身につけたい？",
+        "卒論、就活、資格、自分が必要とする時にはサポートしてほしい？"
+    ];
+
+    let currentIdx = 0;
+    let yesCount = 0;
+
+    function startQuiz() {
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        showQuestion();
+    }
+
+    function showQuestion() {
+        document.getElementById('question-text').innerText = questions[currentIdx];
+        document.getElementById('q-num').innerText = (currentIdx + 1);
+        document.getElementById('progress-fill').style.width = `${(currentIdx / questions.length) * 100}%`;
+    }
+
+    function answer(isYes) {
+        if (isYes) yesCount++;
+        currentIdx++;
+
+        if (currentIdx < questions.length) {
+            showQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+
+        let score = 40 + (yesCount * 10);
+        document.getElementById('score-display').innerText = score;
+
+        let title = "";
+        let msg = "";
+
+        if (score >= 180) {
+            title = "👑 伝説の　ヒダゼミ生！ 👑";
+            msg = "おめでとう！　キミと　ヒダゼミの相性は　バツグンすぎて　もはや　運命！　先生も　キミが　島（ゼミ）に　来てくれるのを　首をながくして　待っているはずだよ。　いっしょに　最高な　卒論を　作っちゃおう！";
+        } else if (score >= 140) {
+            title = "💖 頼りになる　おとなりの住人 💖";
+            msg = "相性は　とっても　いい感じ！　フィールドワークや　丁寧な　卒論指導を　楽しむ　じゅんびは　できているみたいだね。　新しい　出会いが　キミを　待っているよ。";
+        } else if (score >= 100) {
+            title = "🍀 これから　仲良くなる　お友達 🍀";
+            msg = "相性は　なかなか　いいみたい！　まずは　気楽に　お話しに　来てみない？　キミのペースに　あわせて　「ちょうどいい　おせっかい」を　焼いちゃうよ。";
+        } else {
+            title = "🍃 期待の　ルーキー！ 🍃";
+            msg = "この診断を　受けてくれた　キミは　もう　立派な　ヒダゼミ候補！　「これから　視野を　広げたい」　そんなキミを　全力で　応援するよ。　まずは　お話し　してみよう！";
+        }
+
+        document.getElementById('result-title').innerText = title;
+        document.getElementById('result-message').innerText = msg;
+        
+        createConfetti();
+    }
+
+    function createConfetti() {
+        for (let i = 0; i < 100; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.backgroundColor = ['#ff8a65', '#8dc14b', '#ffd54f', '#4fc3f7', '#ba68c8'][Math.floor(Math.random() * 5)];
+            confetti.style.top = '-10px';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+            document.body.appendChild(confetti);
+
+            const animation = confetti.animate([
+                { top: '-10px', opacity: 1 },
+                { top: '100vh', opacity: 0 }
+            ], {
+                duration: Math.random() * 3000 + 2000,
+                easing: 'cubic-bezier(0, .9, .57, 1)'
+            });
+
+            animation.onfinish = () => confetti.remove();
+        }
+    }
+</script>
+
+</body>
+</html>
